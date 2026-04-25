@@ -236,3 +236,16 @@ def build_transformer(src_vocab_size: int, trg_vocab_size: int, src_seq_len: int
         decoder_feed_forward_block = FeedForwardBlock(d_model, d_ff, dropout)
         decoder_block.append(DecoderBlock(decoder_self_attention_block, decoder_cross_attention_block, decoder_feed_forward_block, dropout))
         decoder_block.append(decoder_block)
+
+
+    encoder = Encoder(nn.ModuleList(encoder_block))
+    decoder = Decoder(nn.ModuleList(decoder_block))
+
+    projection_layer = ProjectionLayer(d_model, trg_vocab_size)
+
+    Transformer = Transformer(encoder, decoder, src_embed, trg_embed, src_pos, trg_pos, projection_layer)
+
+    for p in Transformer.parameters():
+        if p.dim() > 1:
+            nn.init.xavier_uniform_(p)
+    return Transformer
